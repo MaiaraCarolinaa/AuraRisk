@@ -20,10 +20,8 @@ aplicativo.use((erro: unknown, _requisicao: express.Request, resposta: express.R
   resposta.status(500).json({ error: 'Erro interno ao consultar fontes de dados.' });
 });
 
-if (!process.env.VERCEL) {
-  aplicativo.listen(PORTA, () => {
-    console.log(`Aura Risk backend rodando em http://localhost:${PORTA}`);
-  });
-}
+aplicativo.listen(PORTA, () => {
+  console.log(`Aura Risk backend rodando em http://localhost:${PORTA}`);
+});
 
 export default aplicativo;
