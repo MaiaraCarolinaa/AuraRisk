@@ -72,6 +72,22 @@ Sobe em `http://localhost:5173` e faz proxy de `/api/*` para o backend.
 - `GET /api/occurrences` — feed unificado de ocorrências
 - `GET /api/municipios` — lista de referência de municípios de MT
 
+## Deploy (Vercel)
+
+O projeto está configurado como monorepo para deploy em um único projeto Vercel
+(`vercel.json` na raiz): o `frontend` é servido como site estático e o
+`backend/src/index.ts` roda como função serverless, ambos sob o mesmo domínio
+(`/api/*` vai para o backend, o restante serve o React).
+
+1. Importe o repositório em [vercel.com/new](https://vercel.com/new) sem alterar o
+   "Root Directory" (mantenha a raiz do repo).
+2. Opcional: defina a variável de ambiente `MAPBIOMAS_TOKEN` no projeto Vercel.
+3. Deploy.
+
+Observação: por rodar como função serverless, o cache em memória do backend não
+persiste entre "cold starts" — funciona bem para este MVP, mas não é um cache
+de longa duração como no servidor local.
+
 ## Próximos passos sugeridos
 
 1. Obter um token de conta MapBiomas Alerta para ativar os alertas de desmatamento ao vivo.
