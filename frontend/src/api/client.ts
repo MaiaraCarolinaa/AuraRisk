@@ -8,8 +8,10 @@ import type {
   SumarioClima,
 } from '../types';
 
+const URL_BASE_API = import.meta.env.VITE_API_URL ?? '';
+
 async function obterJson<T>(caminho: string): Promise<T> {
-  const resposta = await fetch(`/api${caminho}`);
+  const resposta = await fetch(`${URL_BASE_API}/api${caminho}`);
   if (!resposta.ok) throw new Error(`Falha ao consultar ${caminho}: ${resposta.status}`);
   return resposta.json();
 }
