@@ -46,26 +46,35 @@ function nivelRiscoPorContagem(total: number): NivelRisco {
   return 'baixo';
 }
 
+async function buscarLinhasMtPorData(data: Date): Promise<Record<string, string>[] | null> {
+  const textoCsv = await buscarCsvPorData(data);
+  if (!textoCsv) return null;
+  return analisarCsv(textoCsv).filter((linha) => (linha.estado ?? '').toUpperCase() === MT_ESTADO_NOME);
+}
+
 async function carregarQueimadas(): Promise<SumarioQueimadas> {
   const hoje = new Date();
   const ontem = new Date(hoje);
   ontem.setUTCDate(ontem.getUTCDate() - 1);
 
-  let textoCsv: string | null = null;
+  let linhasMt: Record<string, string>[] | null = null;
   let dataReferencia = formatarData(hoje);
   let aoVivo = true;
 
   try {
-    textoCsv = await buscarCsvPorData(hoje);
-    if (!textoCsv) {
-      textoCsv = await buscarCsvPorData(ontem);
-      dataReferencia = formatarData(ontem);
+    linhasMt = await buscarLinhasMtPorData(hoje);
+    if (!linhasMt || linhasMt.length === 0) {
+      const linhasMtOntem = await buscarLinhasMtPorData(ontem);
+      if (linhasMtOntem) {
+        linhasMt = linhasMtOntem;
+        dataReferencia = formatarData(ontem);
+      }
     }
   } catch {
     aoVivo = false;
   }
 
-  if (!textoCsv) {
+  if (!linhasMt) {
     return {
       fonte: 'INPE / Programa Queimadas (BDQueimadas)',
       aoVivo: false,
@@ -78,9 +87,6 @@ async function carregarQueimadas(): Promise<SumarioQueimadas> {
       focos: [],
     };
   }
-
-  const linhas = analisarCsv(textoCsv);
-  const linhasMt = linhas.filter((linha) => (linha.estado ?? '').toUpperCase() === MT_ESTADO_NOME);
 
   const focos: FocoCalor[] = linhasMt.map((linha) => ({
     id: linha.id,
